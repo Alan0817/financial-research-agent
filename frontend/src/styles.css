@@ -644,14 +644,135 @@ footer {
   text-transform: uppercase;
 }
 
-.answer-panel p {
+.markdown-content {
   max-width: 900px;
   margin: 14px 0 0;
   color: #30443a;
-  white-space: pre-wrap;
   line-height: 1.72;
+  overflow-wrap: anywhere;
 }
 
+.markdown-content > :first-child {
+  margin-top: 0;
+}
+
+.markdown-content > :last-child {
+  margin-bottom: 0;
+}
+
+.markdown-content p {
+  margin: 0 0 14px;
+}
+
+.markdown-content h1,
+.markdown-content h2,
+.markdown-content h3 {
+  margin: 24px 0 10px;
+  color: #1d352a;
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.markdown-content h1 {
+  font-size: 1.34rem;
+}
+
+.markdown-content h2 {
+  font-size: 1.18rem;
+}
+
+.markdown-content h3 {
+  font-size: 1.04rem;
+}
+
+.markdown-content ul,
+.markdown-content ol {
+  margin: 0 0 14px;
+  padding-left: 24px;
+}
+
+.markdown-content li {
+  margin: 4px 0;
+}
+
+.markdown-content li > ul,
+.markdown-content li > ol {
+  margin: 4px 0 0;
+}
+
+.markdown-content blockquote {
+  margin: 18px 0;
+  padding: 3px 0 3px 15px;
+  border-left: 3px solid #94a89a;
+  color: #53675b;
+}
+
+.markdown-content code {
+  padding: 2px 5px;
+  border-radius: 3px;
+  color: #1a4f49;
+  background: #edf3ef;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 0.88em;
+}
+
+.markdown-content pre {
+  max-width: 100%;
+  margin: 18px 0;
+  padding: 14px;
+  overflow-x: auto;
+  border: 1px solid #d5dfd7;
+  border-radius: 4px;
+  background: #f3f6f2;
+  line-height: 1.55;
+}
+
+.markdown-content pre code {
+  padding: 0;
+  color: inherit;
+  background: transparent;
+  white-space: pre;
+}
+
+.markdown-content a {
+  color: #17615b;
+  font-weight: 700;
+  text-decoration-color: #81aaa0;
+  text-underline-offset: 2px;
+}
+
+.markdown-content a:hover {
+  color: #0d4a45;
+}
+
+.markdown-content table {
+  display: block;
+  max-width: 100%;
+  margin: 18px 0;
+  overflow-x: auto;
+  border-collapse: collapse;
+  white-space: nowrap;
+}
+
+.markdown-content th,
+.markdown-content td {
+  padding: 8px 10px;
+  border: 1px solid #d5dfd7;
+  text-align: left;
+}
+
+.markdown-content th {
+  color: #29463a;
+  background: #edf3ef;
+  font-size: 0.84rem;
+}
+
+.markdown-content hr {
+  margin: 22px 0;
+  border: 0;
+  border-top: 1px solid #dfe6e0;
+}
 .limitations-panel {
   margin-top: 26px;
   padding: 18px;

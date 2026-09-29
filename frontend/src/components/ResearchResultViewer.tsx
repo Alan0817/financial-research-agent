@@ -2,6 +2,7 @@ import { CheckCircle2, FileClock, Radio, Wrench } from "lucide-react";
 
 import { EvidenceBadge } from "./EvidenceBadge";
 import { KeyFindings } from "./KeyFindings";
+import { MarkdownContent } from "./MarkdownContent";
 import { formatCapturedAt, humanizeToolName } from "../lib/format";
 import type { DemoPresentationResult, ShowcaseScenario } from "../types/api";
 
@@ -48,7 +49,7 @@ export function ResearchResultViewer({ result, scenario, prompt }: ResearchResul
           <CheckCircle2 aria-hidden="true" size={18} />
           Research answer
         </div>
-        <p>{result.answer}</p>
+        <MarkdownContent content={result.answer} />
       </div>
 
       <KeyFindings evidence={result.quantitative_evidence} />
