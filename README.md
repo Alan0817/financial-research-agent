@@ -300,6 +300,78 @@ server owner explicitly enables live mode and provides the required local and
 provider dependencies. For a separately hosted frontend, set
 `DEMO_CORS_ORIGINS` to its explicit origin, such as `http://localhost:5173`.
 
+### Local Live Research
+
+LIVE mode is opt-in and server-owned. The browser submits only a research
+question; it cannot select a provider, model, retrieval backend, web-search
+provider, API key, or local path. The server loads `.env` through the existing
+configuration modules, so set the desired values there before starting the API.
+
+For an OpenAI-backed run, set `LLM_PROVIDER=openai` and `OPENAI_API_KEY`.
+For Gemini, set `LLM_PROVIDER=gemini` and `GEMINI_API_KEY`. `LLM_MODEL` can
+select a model for either provider; `OPENAI_MODEL` and `GEMINI_MODEL` remain
+provider-specific fallbacks.
+
+For local SEC document retrieval, keep `RETRIEVAL_BACKEND=hybrid` (or another
+supported configured backend) and ensure the local SEC corpus and compatible
+retrieval index exist under `data/financial_documents/`. `SEC_USER_AGENT` is
+required only when downloading from SEC EDGAR; it is not required to search an
+already-built local corpus. Web evidence is available only when the existing
+composition receives `WEB_SEARCH_PROVIDER=tavily` and `TAVILY_API_KEY`.
+
+The BTC-specific LSTM has no environment switch. A live BTC request needs the
+local `src/model_weight/lstm_model.pth` artifact and enough available daily
+market history for its 30-observation sequence; it remains `BTC-USD` only.
+Live market-data tools may independently require their configured external data
+source to be reachable.
+
+In one terminal, start the API with live mode enabled. Environment values in
+the command override same-named `.env` values for that local process:
+
+```bash
+DEMO_LIVE_ENABLED=true \
+DEMO_CORS_ORIGINS=http://localhost:5173 \
+PYTHONPATH=src \
+python -m uvicorn api.app:app --reload
+```
+
+In a second terminal, start the frontend:
+
+```bash
+cd frontend
+VITE_API_BASE_URL=http://localhost:8000 npm run dev
+```
+
+Open `http://localhost:5173`. Confirm `GET /v1/capabilities` reports
+`live_mode_enabled: true`; the page will then present separate **Reviewed
+Showcase** and **Live Research** modes. Do not enable LIVE mode for a public
+demo without intentionally managing provider cost, rate limits, and abuse.
+
+### Portfolio Page
+
+The React and TypeScript portfolio page consumes only the public demo API
+contract. Its default experience is the reviewed offline showcase, so it does
+not require provider credentials, a SEC corpus, or a retrieval index.
+The Vite toolchain requires Node.js 18 or newer.
+
+Run the showcase API with an explicit local frontend origin:
+
+```bash
+DEMO_CORS_ORIGINS=http://localhost:5173 \
+PYTHONPATH=src python -m uvicorn api.app:app --reload
+```
+
+In a second terminal, run the Vite frontend:
+
+```bash
+cd frontend
+VITE_API_BASE_URL=http://localhost:8000 npm run dev
+```
+
+The page is available at `http://localhost:5173`. The browser receives no
+provider credentials or retrieval configuration; live research remains a
+server-owned, opt-in capability.
+
 Historical BTC pipeline entry points remain available. The repository includes the processed BTC dataset; training writes the ignored local model artifact required by the backtest. Refreshing market data is optional and makes a Yahoo Finance network request.
 
 ```bash

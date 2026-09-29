@@ -1,5 +1,6 @@
 .env
 *.env
+!frontend/.env.example
 *.log
 __pycache__/
 *.pyc
@@ -7,6 +8,8 @@ __pycache__/
 .pytest_cache/
 .venv/
 /venv/
+node_modules/
+dist/
 /.vscode/
 *.tmp
 *.temp
