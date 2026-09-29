@@ -1,0 +1,23 @@
+{
+  "schema_version": "demo-presentation-v1",
+  "mode": "showcase",
+  "answer": "RSI (Relative Strength Index) generally measures the speed and magnitude of recent price movements. It is a momentum oscillator, not a guarantee of a price reversal.",
+  "tools_used": [],
+  "evidence_families": [],
+  "trace": [
+    {
+      "event": "final_response"
+    }
+  ],
+  "quantitative_evidence": [],
+  "sec_evidence": [],
+  "web_evidence": [],
+  "sec_citations": [],
+  "web_sources": [],
+  "limitations": [],
+  "metadata": {
+    "captured_at": "2026-09-16T15:38:00Z",
+    "capture_source": "reviewed controlled OpenAI E2E subset",
+    "snapshot_notice": "Showcase snapshot — captured from a reviewed agent run. This example is not live market or web information."
+  }
+}

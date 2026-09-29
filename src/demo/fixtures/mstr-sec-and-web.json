@@ -1,0 +1,125 @@
+{
+  "schema_version": "demo-presentation-v1",
+  "mode": "showcase",
+  "answer": "The reviewed run kept recent MSTR web evidence distinct from the company’s 10-K risk disclosures. The web result described a reported Bitcoin acquisition, while the SEC evidence described Bitcoin-strategy risks including volatility.",
+  "tools_used": [
+    "search_web",
+    "search_financial_documents"
+  ],
+  "evidence_families": [
+    "document",
+    "web"
+  ],
+  "trace": [
+    {
+      "event": "tool_requested",
+      "round": 1,
+      "tool_name": "search_web",
+      "arguments": {
+        "query": "Strategy MSTR recent Bitcoin purchases 2025 2026 official investor relations bitcoin holdings financing developments risks",
+        "max_results": 5
+      }
+    },
+    {
+      "event": "tool_completed",
+      "round": 1,
+      "tool_name": "search_web",
+      "status": "ok",
+      "result_summary": {
+        "status": "ok",
+        "result_count": 5
+      }
+    },
+    {
+      "event": "tool_requested",
+      "round": 1,
+      "tool_name": "search_financial_documents",
+      "arguments": {
+        "query": "What risks does Strategy (formerly MicroStrategy) disclose related to bitcoin holdings, bitcoin price volatility, debt, preferred stock, equity issuance, liquidity, and ability to continue acquiring bitcoin?",
+        "top_k": 6,
+        "ticker": "MSTR",
+        "document_type": "10-K",
+        "section": "Risk Factors",
+        "filing_date_from": "2024-01-01",
+        "filing_date_to": "2026-12-31"
+      }
+    },
+    {
+      "event": "tool_completed",
+      "round": 1,
+      "tool_name": "search_financial_documents",
+      "status": "ok",
+      "result_summary": {
+        "status": "ok",
+        "result_count": 6,
+        "filters": {
+          "ticker": "MSTR",
+          "document_type": "10-K",
+          "section": "Risk Factors",
+          "filing_date_from": "2024-01-01",
+          "filing_date_to": "2026-12-31"
+        }
+      }
+    },
+    {
+      "event": "final_response"
+    }
+  ],
+  "quantitative_evidence": [],
+  "sec_evidence": [
+    {
+      "rank": 1,
+      "score": 0.03278688524590164,
+      "chunk_id": "chunk_2ddc8f183abff7deecd00c8a",
+      "document_id": "sec_7c624a993e2f9b6321005504",
+      "ticker": "MSTR",
+      "company": "Strategy Inc.",
+      "document_type": "10-K",
+      "filing_date": "2026-02-19",
+      "period_end": "2025-12-31",
+      "section": "PART I ITEM 1A",
+      "section_title": "Risk Factors",
+      "source": "SEC EDGAR",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1050446/000105044626000020/mstr-20251231.htm",
+      "excerpt": "Risks Related to Our Bitcoin Strategy and Holdings. Our bitcoin strategy exposes us to various risks, including risks associated with bitcoin. Bitcoin is a highly volatile asset. The trading price of bitcoin significantly decreased during prior periods, and such declines may occur again in the future."
+    }
+  ],
+  "web_evidence": [
+    {
+      "rank": 1,
+      "title": "Strategy Inc updates ATM sales, bitcoin holdings | MSTR 8-K Filing",
+      "url": "https://www.stocktitan.net/sec-filings/MSTR/8-k-strategy-inc-reports-material-event-5f0b19a074a0.html",
+      "snippet": "Strategy Inc acquired 17,994 bitcoin between March 2 and March 8, 2026. The aggregate purchase price was $1.28 billion, and the average purchase price over that period was $70,946 per bitcoin.",
+      "source": null,
+      "published_at": null
+    }
+  ],
+  "sec_citations": [
+    {
+      "chunk_id": "chunk_2ddc8f183abff7deecd00c8a",
+      "document_id": "sec_7c624a993e2f9b6321005504",
+      "ticker": "MSTR",
+      "company": "Strategy Inc.",
+      "document_type": "10-K",
+      "filing_date": "2026-02-19",
+      "section": "PART I ITEM 1A",
+      "section_title": "Risk Factors",
+      "source": "SEC EDGAR",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1050446/000105044626000020/mstr-20251231.htm"
+    }
+  ],
+  "web_sources": [
+    {
+      "title": "Strategy Inc updates ATM sales, bitcoin holdings | MSTR 8-K Filing",
+      "url": "https://www.stocktitan.net/sec-filings/MSTR/8-k-strategy-inc-reports-material-event-5f0b19a074a0.html",
+      "source": null,
+      "published_at": null
+    }
+  ],
+  "limitations": [],
+  "metadata": {
+    "captured_at": "2026-09-16T15:38:00Z",
+    "capture_source": "reviewed controlled OpenAI E2E subset",
+    "snapshot_notice": "Showcase snapshot — captured from a reviewed agent run. This example is not live market or web information."
+  }
+}

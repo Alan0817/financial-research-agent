@@ -1,0 +1,88 @@
+{
+  "schema_version": "demo-presentation-v1",
+  "mode": "showcase",
+  "answer": "MSTR disclosed custody risks in its 2025 Form 10-K, filed February 19, 2026, including loss or destruction of private keys, cyberattacks or data loss, and reliance on custodians. The filing evidence below is preserved separately from the generated explanation.",
+  "tools_used": [
+    "search_financial_documents"
+  ],
+  "evidence_families": [
+    "document"
+  ],
+  "trace": [
+    {
+      "event": "tool_requested",
+      "round": 1,
+      "tool_name": "search_financial_documents",
+      "arguments": {
+        "query": "What Bitcoin custody risks does MSTR disclose, including risks of loss, theft, cyberattack, private keys, custodians, and access to bitcoin?",
+        "top_k": 5,
+        "ticker": "MSTR",
+        "document_type": "10-K",
+        "section": "Risk Factors",
+        "filing_date_from": "2024-01-01",
+        "filing_date_to": "2026-12-31"
+      }
+    },
+    {
+      "event": "tool_completed",
+      "round": 1,
+      "tool_name": "search_financial_documents",
+      "status": "ok",
+      "result_summary": {
+        "status": "ok",
+        "result_count": 5,
+        "filters": {
+          "ticker": "MSTR",
+          "document_type": "10-K",
+          "section": "Risk Factors",
+          "filing_date_from": "2024-01-01",
+          "filing_date_to": "2026-12-31"
+        }
+      }
+    },
+    {
+      "event": "final_response"
+    }
+  ],
+  "quantitative_evidence": [],
+  "sec_evidence": [
+    {
+      "rank": 1,
+      "score": 0.03278688524590164,
+      "chunk_id": "chunk_3952ab7cf6f88df0604401b3",
+      "document_id": "sec_7c624a993e2f9b6321005504",
+      "ticker": "MSTR",
+      "company": "Strategy Inc.",
+      "document_type": "10-K",
+      "filing_date": "2026-02-19",
+      "period_end": "2025-12-31",
+      "section": "PART I ITEM 1A",
+      "section_title": "Risk Factors",
+      "source": "SEC EDGAR",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1050446/000105044626000020/mstr-20251231.htm",
+      "excerpt": "We face risks relating to the custody of our bitcoin, including the loss or destruction of private keys required to access our bitcoin and cyberattacks or other data loss relating to our bitcoin. We hold our bitcoin with regulated custodians that have duties to safeguard our private keys."
+    }
+  ],
+  "web_evidence": [],
+  "sec_citations": [
+    {
+      "chunk_id": "chunk_3952ab7cf6f88df0604401b3",
+      "document_id": "sec_7c624a993e2f9b6321005504",
+      "ticker": "MSTR",
+      "company": "Strategy Inc.",
+      "document_type": "10-K",
+      "filing_date": "2026-02-19",
+      "section": "PART I ITEM 1A",
+      "section_title": "Risk Factors",
+      "source": "SEC EDGAR",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1050446/000105044626000020/mstr-20251231.htm"
+    }
+  ],
+  "web_sources": [],
+  "limitations": [],
+  "metadata": {
+    "captured_at": "2026-09-16T15:38:00Z",
+    "capture_source": "reviewed controlled OpenAI E2E subset",
+    "snapshot_notice": "Showcase snapshot — captured from a reviewed agent run. This example is not live market or web information."
+  }
+}

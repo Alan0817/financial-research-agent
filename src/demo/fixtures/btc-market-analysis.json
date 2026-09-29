@@ -1,0 +1,129 @@
+{
+  "schema_version": "demo-presentation-v1",
+  "mode": "showcase",
+  "answer": "BTC-USD gained approximately 68.25% over the captured 2024-09-01 to 2024-12-01 period. The LSTM output is BTC-USD-specific model evidence, not a trading exposure or investment recommendation.",
+  "tools_used": [
+    "analyze_market"
+  ],
+  "evidence_families": [
+    "quantitative"
+  ],
+  "trace": [
+    {
+      "event": "tool_requested",
+      "round": 1,
+      "tool_name": "analyze_market",
+      "arguments": {
+        "symbol": "BTC-USD",
+        "start_date": "2024-09-01",
+        "end_date": "2024-12-01"
+      }
+    },
+    {
+      "event": "tool_completed",
+      "round": 1,
+      "tool_name": "analyze_market",
+      "status": "ok",
+      "result_summary": {
+        "status": "ok",
+        "symbol": "BTC-USD",
+        "observations": 91,
+        "lstm_status": "available"
+      }
+    },
+    {
+      "event": "final_response"
+    }
+  ],
+  "quantitative_evidence": [
+    {
+      "tool_name": "analyze_market",
+      "result": {
+        "symbol": "BTC-USD",
+        "period": {
+          "requested": {
+            "start": "2024-09-01",
+            "end": "2024-12-01"
+          },
+          "available": {
+            "start": "2024-09-01T00:00:00",
+            "end": "2024-11-30T00:00:00"
+          }
+        },
+        "market": {
+          "observations": 91,
+          "latest_ohlcv": {
+            "Close": 96449.0546875,
+            "Volume": 31634227866.0
+          },
+          "period_return": 0.6824811716265227
+        },
+        "technical_analysis": {
+          "timestamp": "2024-11-29T00:00:00",
+          "indicators": {
+            "RSI": 68.2002422693079,
+            "MACD": 5419.067280681353,
+            "MACD_Signal": 5949.882148997378,
+            "MA_7": 95707.89174107143,
+            "MA_30": 85696.24557291667,
+            "Volatility": 0.02894224975851065
+          }
+        },
+        "lstm_prediction": {
+          "status": "available",
+          "timestamp": "2024-11-29T00:00:00",
+          "probability_up": 0.21747300028800964,
+          "prediction": 0,
+          "raw_signal": -1,
+          "target_definition": "Target = 1 when Future_Return > 0.005.",
+          "raw_signal_definition": "Raw threshold label; it is not a long/short exposure.",
+          "probability_up_definition": "P(Target = 1)",
+          "raw_signal_is_exposure": false
+        },
+        "risk": {
+          "observations": 90,
+          "annualization_factor": 252,
+          "annualized_volatility": 0.40338685346655423,
+          "sharpe_ratio": 3.819651233448939,
+          "maximum_drawdown": -0.08735425279996191,
+          "cumulative_return": 0.6824811716265216,
+          "assumptions": {
+            "observation_frequency": "daily",
+            "risk_free_rate": 0.0,
+            "sharpe_annualization": "sqrt(252)"
+          }
+        }
+      }
+    }
+  ],
+  "sec_evidence": [],
+  "web_evidence": [],
+  "sec_citations": [],
+  "web_sources": [],
+  "limitations": [
+    {
+      "code": "model_symbol_applicability",
+      "supported_symbols": [
+        "BTC-USD"
+      ],
+      "applicable": true
+    },
+    {
+      "code": "target_definition",
+      "value": "Target = 1 when Future_Return > 0.005."
+    },
+    {
+      "code": "raw_signal_is_exposure",
+      "value": false
+    },
+    {
+      "code": "investment_recommendation",
+      "value": false
+    }
+  ],
+  "metadata": {
+    "captured_at": "2026-09-16T06:47:31Z",
+    "capture_source": "reviewed OpenAI tool-calling smoke benchmark",
+    "snapshot_notice": "Showcase snapshot — captured from a reviewed agent run. This example is historical and not live market information."
+  }
+}

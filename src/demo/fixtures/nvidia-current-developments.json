@@ -1,0 +1,95 @@
+{
+  "schema_version": "demo-presentation-v1",
+  "mode": "showcase",
+  "answer": "This historical snapshot used two bounded web searches and returned source URLs for NVIDIA developments indexed in March 2026. Search-result snippets are evidence metadata, not full-page verification.",
+  "tools_used": [
+    "search_web"
+  ],
+  "evidence_families": [
+    "web"
+  ],
+  "trace": [
+    {
+      "event": "tool_requested",
+      "round": 1,
+      "tool_name": "search_web",
+      "arguments": {
+        "query": "latest NVIDIA developments news March 2026 NVIDIA official investor relations recent announcements",
+        "max_results": 5
+      }
+    },
+    {
+      "event": "tool_completed",
+      "round": 1,
+      "tool_name": "search_web",
+      "status": "ok",
+      "result_summary": {
+        "status": "ok",
+        "result_count": 5
+      }
+    },
+    {
+      "event": "tool_requested",
+      "round": 2,
+      "tool_name": "search_web",
+      "arguments": {
+        "query": "NVIDIA latest developments March 2026 Vera Rubin GTC 2026 Blackwell recent news Reuters CNBC",
+        "max_results": 8
+      }
+    },
+    {
+      "event": "tool_completed",
+      "round": 2,
+      "tool_name": "search_web",
+      "status": "ok",
+      "result_summary": {
+        "status": "ok",
+        "result_count": 8
+      }
+    },
+    {
+      "event": "final_response"
+    }
+  ],
+  "quantitative_evidence": [],
+  "sec_evidence": [],
+  "web_evidence": [
+    {
+      "rank": 1,
+      "title": "NVIDIA Announces Financial Results for Fourth Quarter ...",
+      "url": "http://nvidianews.nvidia.com/news/nvidia-announces-financial-results-for-fourth-quarter-and-fiscal-2026",
+      "snippet": "NVIDIA will conduct a conference call with analysts and investors to discuss its fourth quarter and fiscal 2026 financial results and current financial prospects.",
+      "source": null,
+      "published_at": null
+    },
+    {
+      "rank": 1,
+      "title": "Nvidia GTC 2026: CEO Jensen Huang keynote Blackwell Vera Rubin",
+      "url": "https://www.cnbc.com/2026/03/16/nvidia-gtc-2026-ceo-jensen-huang-keynote-blackwell-vera-rubin.html",
+      "snippet": "Huang announced that Nissan, BYD, Geely, Isuzu and Hyundai are building level 4 autonomous vehicles on Nvidia's Drive Hyperion program.",
+      "source": null,
+      "published_at": null
+    }
+  ],
+  "sec_citations": [],
+  "web_sources": [
+    {
+      "title": "NVIDIA Announces Financial Results for Fourth Quarter ...",
+      "url": "http://nvidianews.nvidia.com/news/nvidia-announces-financial-results-for-fourth-quarter-and-fiscal-2026",
+      "source": null,
+      "published_at": null
+    },
+    {
+      "title": "Nvidia GTC 2026: CEO Jensen Huang keynote Blackwell Vera Rubin",
+      "url": "https://www.cnbc.com/2026/03/16/nvidia-gtc-2026-ceo-jensen-huang-keynote-blackwell-vera-rubin.html",
+      "source": null,
+      "published_at": null
+    }
+  ],
+  "limitations": [],
+  "metadata": {
+    "captured_at": "2026-09-16T15:38:00Z",
+    "capture_source": "reviewed controlled OpenAI E2E subset",
+    "snapshot_notice": "Showcase snapshot — captured from a reviewed agent run. This example is not live market or web information."
+  }
+}

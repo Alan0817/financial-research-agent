@@ -1,0 +1,123 @@
+{
+  "schema_version": "demo-presentation-v1",
+  "mode": "showcase",
+  "answer": "NVDA data covered January 2 through June 29, 2026, with 122 trading observations. The period return was 3.37%; the BTC-only LSTM was not applicable to NVDA.",
+  "tools_used": [
+    "analyze_market"
+  ],
+  "evidence_families": [
+    "quantitative"
+  ],
+  "trace": [
+    {
+      "event": "tool_requested",
+      "round": 1,
+      "tool_name": "analyze_market",
+      "arguments": {
+        "symbol": "NVDA",
+        "start_date": "2026-01-01",
+        "end_date": "2026-06-30"
+      }
+    },
+    {
+      "event": "tool_completed",
+      "round": 1,
+      "tool_name": "analyze_market",
+      "status": "ok",
+      "result_summary": {
+        "status": "ok",
+        "symbol": "NVDA",
+        "observations": 122,
+        "lstm_status": "not_applicable"
+      }
+    },
+    {
+      "event": "final_response"
+    }
+  ],
+  "quantitative_evidence": [
+    {
+      "tool_name": "analyze_market",
+      "result": {
+        "symbol": "NVDA",
+        "period": {
+          "requested": {
+            "start": "2026-01-01",
+            "end": "2026-06-30"
+          },
+          "available": {
+            "start": "2026-01-02T00:00:00",
+            "end": "2026-06-29T00:00:00"
+          }
+        },
+        "market": {
+          "observations": 122,
+          "latest_ohlcv": {
+            "Close": 194.7520751953125,
+            "Volume": 148835700.0
+          },
+          "period_return": 0.03366578441558721
+        },
+        "technical_analysis": {
+          "timestamp": "2026-06-26T00:00:00",
+          "indicators": {
+            "RSI": 37.57248737609733,
+            "MACD": -3.6385141056707084,
+            "MACD_Signal": -1.7331368751604646,
+            "MA_7": 201.38893563406808,
+            "MA_30": 211.62080078125,
+            "Volatility": 0.02103002872626982
+          }
+        },
+        "lstm_prediction": {
+          "status": "not_applicable",
+          "reason": "The available LSTM artifact was trained for BTC-USD."
+        },
+        "risk": {
+          "observations": 121,
+          "annualization_factor": 252,
+          "annualized_volatility": 0.38176042825465195,
+          "sharpe_ratio": 0.3710136582842889,
+          "maximum_drawdown": -0.18234333431251504,
+          "cumulative_return": 0.03366578441558832,
+          "assumptions": {
+            "observation_frequency": "daily",
+            "risk_free_rate": 0.0,
+            "sharpe_annualization": "sqrt(252)"
+          }
+        }
+      }
+    }
+  ],
+  "sec_evidence": [],
+  "web_evidence": [],
+  "sec_citations": [],
+  "web_sources": [],
+  "limitations": [
+    {
+      "code": "model_symbol_applicability",
+      "supported_symbols": [
+        "BTC-USD"
+      ],
+      "applicable": false
+    },
+    {
+      "code": "lstm_prediction_status",
+      "status": "not_applicable",
+      "reason": "The available LSTM artifact was trained for BTC-USD."
+    },
+    {
+      "code": "raw_signal_is_exposure",
+      "value": false
+    },
+    {
+      "code": "investment_recommendation",
+      "value": false
+    }
+  ],
+  "metadata": {
+    "captured_at": "2026-09-16T15:38:00Z",
+    "capture_source": "reviewed controlled OpenAI E2E subset",
+    "snapshot_notice": "Showcase snapshot — captured from a reviewed agent run. This example is not live market or web information."
+  }
+}
