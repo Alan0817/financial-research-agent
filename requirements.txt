@@ -12,3 +12,6 @@ requests
 beautifulsoup4
 sentence-transformers
 pytest
+fastapi
+uvicorn
+httpx

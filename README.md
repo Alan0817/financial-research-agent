@@ -284,6 +284,22 @@ PY
 
 To work without current web search, omit `web_search_provider`. The agent then exposes only capabilities that are actually configured. Both forms may make live provider calls; they are not part of the test suite.
 
+### Portfolio Demo API
+
+The FastAPI transport defaults to offline showcase mode and does not construct
+the live agent at startup. With `DEMO_LIVE_ENABLED=false`, it works without
+provider credentials or local SEC/index artifacts:
+
+```bash
+PYTHONPATH=src python -m uvicorn api.app:app --reload
+```
+
+The reviewed showcase catalog is available at
+`GET /v1/showcase/scenarios`. `POST /v1/research` remains disabled until the
+server owner explicitly enables live mode and provides the required local and
+provider dependencies. For a separately hosted frontend, set
+`DEMO_CORS_ORIGINS` to its explicit origin, such as `http://localhost:5173`.
+
 Historical BTC pipeline entry points remain available. The repository includes the processed BTC dataset; training writes the ignored local model artifact required by the backtest. Refreshing market data is optional and makes a Yahoo Finance network request.
 
 ```bash
