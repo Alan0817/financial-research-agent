@@ -735,6 +735,18 @@ footer {
   white-space: pre;
 }
 
+.markdown-content .katex-display {
+  max-width: 100%;
+  margin: 18px 0;
+  padding: 4px 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.markdown-content .katex {
+  font-size: 1em;
+}
+
 .markdown-content a {
   color: #17615b;
   font-weight: 700;
