@@ -376,8 +376,20 @@ npm run preview
 
 The base path is configurable; use `VITE_BASE_PATH=/` for root-hosted local
 preview. Static builds fail clearly if validated showcase assets have not been
-exported. GitHub Pages deployment configuration is intentionally deferred to
-Phase 5.5.2.
+exported.
+
+The repository includes a GitHub Pages workflow for the reviewed static
+showcase. It runs on pushes to `main` or manual dispatch, exports showcase
+assets through the validated Python catalog, and publishes only `frontend/dist`.
+The expected project-site pattern is
+`https://<owner>.github.io/financial-research-agent/`; no public URL is claimed
+until GitHub Pages is enabled and the workflow completes. The public site does
+not deploy FastAPI or expose Live Research. Live Research remains a local or
+private, server-owned capability.
+
+Before the first deployment, enable **GitHub Actions** as the Pages source in
+the repository's Pages settings, review and commit the workflow, then push to
+`main` or run it manually from the Actions tab.
 
 Run the showcase API with an explicit local frontend origin:
 
@@ -395,6 +407,7 @@ VITE_DEMO_MODE=api VITE_API_BASE_URL=http://localhost:8000 npm run dev
 
 The page is available at `http://localhost:5173`. The browser receives no
 provider credentials or retrieval configuration; live research remains a
+server-owned, opt-in capability.
 
 Historical BTC pipeline entry points remain available. The repository includes the processed BTC dataset; training writes the ignored local model artifact required by the backtest. Refreshing market data is optional and makes a Yahoo Finance network request.
 
