@@ -25,13 +25,8 @@ import { ScenarioCards } from "./components/ScenarioCards";
 import { SectionHeading } from "./components/SectionHeading";
 import { StructuredLimitations } from "./components/StructuredLimitations";
 import { ToolTimeline } from "./components/ToolTimeline";
-import {
-  DemoApiError,
-  getCapabilities,
-  getShowcaseScenario,
-  getShowcaseScenarios,
-  runLiveResearch,
-} from "./lib/api";
+import { createDemoDataSource, getDemoMode } from "./lib/demoDataSource";
+import { DemoApiError } from "./lib/demoError";
 import type {
   DemoCapabilities,
   DemoPresentationResult,
@@ -43,6 +38,8 @@ import type {
 
 type ResearchMode = "showcase" | "live";
 const githubUrl = import.meta.env.VITE_GITHUB_URL?.trim() || "https://github.com/";
+const demoMode = getDemoMode();
+const dataSource = createDemoDataSource(demoMode);
 
 
 function App() {
@@ -67,8 +64,8 @@ function App() {
     async function loadCatalog() {
       try {
         const [nextCapabilities, response] = await Promise.all([
-          getCapabilities(),
-          getShowcaseScenarios(),
+          dataSource.getCapabilities(),
+          dataSource.getShowcaseScenarios(),
         ]);
 
         if (!active) {
@@ -112,7 +109,7 @@ function App() {
 
     async function loadResult() {
       try {
-        const result = await getShowcaseScenario(scenarioId);
+        const result = await dataSource.getShowcaseScenario(scenarioId);
         if (active) {
           setSelectedResult(result);
         }
@@ -150,7 +147,7 @@ function App() {
     setLiveResult(null);
 
     try {
-      const result = await runLiveResearch(prompt);
+      const result = await dataSource.runLiveResearch(prompt);
       setSubmittedLivePrompt(prompt);
       setLiveResult(result);
     } catch (error) {
@@ -300,7 +297,7 @@ function App() {
         {activeMode === "showcase" ? (
           <div>
             {isLoadingCatalog ? <div className="loading-state">Loading reviewed showcase scenarios…</div> : null}
-            {catalogError ? <ApiUnavailable message={catalogError} /> : null}
+            {catalogError ? <ShowcaseUnavailable message={catalogError} /> : null}
             {!isLoadingCatalog && !catalogError ? (
               <ScenarioCards
                 onSelect={setSelectedScenarioId}
@@ -311,7 +308,7 @@ function App() {
 
             <div className="showcase-detail" aria-live="polite">
               {isLoadingResult ? <div className="loading-state">Loading selected evidence snapshot…</div> : null}
-              {resultError ? <ApiUnavailable message={resultError} /> : null}
+              {resultError ? <ShowcaseUnavailable message={resultError} /> : null}
               {selectedScenario && selectedResult ? (
                 <ResearchArtifacts result={selectedResult} scenario={selectedScenario} />
               ) : null}
@@ -448,12 +445,14 @@ function ResearchArtifacts({ result, scenario, prompt }: ResearchArtifactsProps)
 }
 
 
-function ApiUnavailable({ message }: { message: string }) {
+function ShowcaseUnavailable({ message }: { message: string }) {
+  const heading = demoMode === "static" ? "Showcase data unavailable" : "Showcase API unavailable";
+
   return (
     <div className="api-error" role="alert">
       <CircleAlert aria-hidden="true" size={20} />
       <div>
-        <strong>Showcase API unavailable</strong>
+        <strong>{heading}</strong>
         <p>{message}</p>
       </div>
     </div>

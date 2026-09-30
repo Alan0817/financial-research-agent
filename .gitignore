@@ -24,3 +24,6 @@ dist/
 /evaluation_results/
 /data/sec_filings/
 /data/financial_documents/
+
+# Generated from validated Python showcase fixtures for static portfolio builds.
+/frontend/public/showcase/

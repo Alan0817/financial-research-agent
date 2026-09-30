@@ -349,10 +349,35 @@ demo without intentionally managing provider cost, rate limits, and abuse.
 
 ### Portfolio Page
 
-The React and TypeScript portfolio page consumes only the public demo API
-contract. Its default experience is the reviewed offline showcase, so it does
-not require provider credentials, a SEC corpus, or a retrieval index.
-The Vite toolchain requires Node.js 18 or newer.
+The React and TypeScript portfolio page supports two explicit modes. The Vite
+toolchain requires Node.js 18 or newer.
+
+- **Static showcase mode** exports the reviewed Python fixtures through the
+  validated catalog and serves them without FastAPI, provider credentials, a
+  SEC corpus, or a retrieval index. It is the intended public portfolio mode.
+- **API mode** loads the same showcase contract from FastAPI and can expose
+  local, server-owned Live Research only when the backend enables it.
+
+Static export data is generated and ignored; the source-controlled authority
+remains `src/demo/scenarios.py` and `src/demo/fixtures/`. From the repository
+root, prepare and build a static showcase with a base path suitable for a
+project-hosted site:
+
+```bash
+PYTHONPATH=src python -m demo.export_showcase
+cd frontend
+VITE_DEMO_MODE=static \
+VITE_BASE_PATH=/financial-research-agent/ \
+npm run build:static
+VITE_DEMO_MODE=static \
+VITE_BASE_PATH=/financial-research-agent/ \
+npm run preview
+```
+
+The base path is configurable; use `VITE_BASE_PATH=/` for root-hosted local
+preview. Static builds fail clearly if validated showcase assets have not been
+exported. GitHub Pages deployment configuration is intentionally deferred to
+Phase 5.5.2.
 
 Run the showcase API with an explicit local frontend origin:
 
@@ -361,16 +386,15 @@ DEMO_CORS_ORIGINS=http://localhost:5173 \
 PYTHONPATH=src python -m uvicorn api.app:app --reload
 ```
 
-In a second terminal, run the Vite frontend:
+In a second terminal, run the Vite frontend in API mode:
 
 ```bash
 cd frontend
-VITE_API_BASE_URL=http://localhost:8000 npm run dev
+VITE_DEMO_MODE=api VITE_API_BASE_URL=http://localhost:8000 npm run dev
 ```
 
 The page is available at `http://localhost:5173`. The browser receives no
 provider credentials or retrieval configuration; live research remains a
-server-owned, opt-in capability.
 
 Historical BTC pipeline entry points remain available. The repository includes the processed BTC dataset; training writes the ignored local model artifact required by the backtest. Refreshing market data is optional and makes a Yahoo Finance network request.
 
