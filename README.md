@@ -1,58 +1,42 @@
 # Financial Research Agent
 
-> A tool-using financial research system that combines deterministic market analysis, SEC filing evidence, current web evidence, and a BTC-USD-specific ML signal.
+> An evidence-grounded, tool-using LLM research system combining quantitative analysis, SEC filing retrieval, current web evidence, and a bounded BTC-specific ML model.
 
-This repository is an evidence-oriented financial research project, not a generic chatbot or automated trading system. A provider-neutral LLM layer coordinates selected tools and synthesizes their outputs. Quantitative calculations, SEC retrieval, and web search remain separate application-owned capabilities with structured results, provenance, traces, and limitations.
+This repository is an evidence-oriented financial research project, not a generic chatbot, automated trading system, or autonomous financial advisor. A provider-neutral LLM layer plans tool use, gathers evidence, and synthesizes a research response. Market calculations, technical indicators, risk metrics, SEC retrieval, BTC-specific LSTM inference, and evidence validation remain application-owned systems with structured results, provenance, traces, and limitations.
 
-The original BTC LSTM remains as a deliberately bounded quantitative capability. It does not predict arbitrary equities or drive automated trading.
+**Explore the portfolio:** [Public Showcase](https://Alan0817.github.io/financial-research-agent/) · [Source Code](https://github.com/Alan0817/financial-research-agent)
+
+The public showcase contains reviewed historical snapshots from real agent runs. It is static by design: examples are not live market or web results, and public Live Research is intentionally not exposed. The full React + FastAPI Live Research application remains available locally or privately.
 
 ## What This Project Demonstrates
 
-- Provider-neutral LLM tool calling with OpenAI and Gemini adapters.
-- Deterministic market, technical-analysis, risk, and BTC-USD LSTM tools.
-- Section-aware SEC 10-K and 10-Q ingestion with stable metadata and provenance.
-- Local dense, lexical BM25, hybrid RRF, and optional cross-encoder retrieval.
-- Provider-neutral current-information web search with a Tavily adapter.
-- Tool traces, structured limitations, and evaluation-driven engineering.
+- Provider-neutral OpenAI and Gemini tool calling through one `FinancialAnalysisAgent` and `ToolRegistry` boundary.
+- Quantitative, SEC filing, and current-web evidence routed as separate application-owned systems.
+- Section-aware SEC retrieval using dense candidates, BM25, Reciprocal Rank Fusion, and optional cross-encoder reranking.
+- A 30-case manually judged SEC retrieval benchmark: Dense Recall@10 `.519`; Hybrid + reranker Recall@10 `.685` on this fixed corpus and label set.
+- A 20-case deterministic end-to-end benchmark for routing, evidence families, provenance, capability boundaries, and limitations.
+- `183` fully offline automated Python tests, plus structured traces that make observable tool execution inspectable.
 
-In this design, the LLM is responsible for **orchestration and synthesis**. It is not the numerical financial predictor, SEC parser, retriever, or web-search provider.
-
-## Key Capabilities
-
-| Capability | What it provides |
-| --- | --- |
-| Quantitative evidence | Market data, project-defined indicators, return risk metrics, and compact market analysis. |
-| BTC-specific ML | A PyTorch LSTM classification signal for `BTC-USD` only. |
-| SEC filing evidence | Deterministic ingestion and local retrieval over configured 10-K and 10-Q filings. |
-| Current web evidence | Bounded title, URL, snippet, source, and publication-date metadata through an application-owned search tool. |
-| Provider neutrality | The same `FinancialAnalysisAgent` and `ToolRegistry` work with OpenAI or Gemini tool-calling adapters. |
-| Evaluation | Deterministic retrieval, tool-routing, planning, provenance, limitation, and end-to-end evidence-handling evaluation. |
+In this design, the LLM is responsible for **orchestration and synthesis**. It is not the numerical financial predictor, SEC parser, retriever, or web-search provider. The BTC LSTM is a deliberately bounded `BTC-USD`-only quantitative capability; it does not predict arbitrary equities or drive automated trading.
 
 ## Architecture
 
 ```mermaid
 flowchart TD
     U[User Query] --> A[FinancialAnalysisAgent]
-    A --> L[Provider-neutral LLMClient]
-    L --> O[OpenAI Adapter]
-    L --> G[Gemini Adapter]
-    O --> R[ToolRegistry]
-    G --> R
-    R --> Q[Quantitative Evidence]
-    Q --> M[Market Data and Technical Analysis]
-    Q --> K[Risk Metrics]
-    Q --> B[BTC-USD LSTM]
-    R --> S[SEC Filing Evidence]
-    S --> I[Section-aware SEC Ingestion]
-    S --> D[Dense and BM25 Retrieval]
-    D --> H[Hybrid RRF]
-    H --> X[Optional Cross-Encoder Reranking]
-    R --> W[Current Web Evidence]
-    W --> T[Tavily Web Search Adapter]
-    EV[Supporting evaluation: retrieval, agent, and E2E] -. evaluates traces, evidence, and routing .-> A
+    A --> L[Provider-neutral LLMClient<br/>OpenAI or Gemini]
+    L --> R[ToolRegistry]
+    R --> Q[Quantitative evidence<br/>market, technical, risk, BTC-only LSTM]
+    R --> S[SEC filing evidence<br/>section-aware hybrid retrieval]
+    R --> W[Current web evidence<br/>Tavily search]
+    Q --> E[Structured evidence<br/>provenance, traces, limitations]
+    S --> E
+    W --> E
+    E --> A
+    A --> O[Evidence-grounded research response]
 ```
 
-Provider adapters translate model tool requests through the same provider-neutral definitions. `ToolRegistry` validates and executes application-owned tools, while JSON-safe traces record tool requests, completions, tool results such as evidence, and structured limitations without exposing provider SDK objects to the agent layer.
+Provider adapters translate model tool requests through the same provider-neutral definitions. `ToolRegistry` validates and executes application-owned tools, while JSON-safe traces record observable tool requests, completions, evidence, and structured limitations without exposing provider SDK objects to the agent layer.
 
 ## Evidence Routing
 
@@ -68,56 +52,61 @@ Keeping these sources separate is intentional. A historical market result is not
 
 ## Evaluation at a Glance
 
-- `143` deterministic offline tests pass.
-- The manually judged SEC retrieval benchmark has 30 cases; `hybrid` is the default latency/coverage trade-off.
-- On that fixed benchmark, `hybrid_reranked` reached Hit@5 `.593`, Hit@10 `.704`, Recall@10 `.685`, nDCG@10 `.405`, and MRR `.315`.
-- The fixed `financial-agent-e2e-v1` benchmark has 20 cases covering tool routing, evidence families, provenance, capability boundaries, and structured limitations.
-- Controlled live provider subsets were used to diagnose actual routing and retrieval behavior; they were not full live 20-case benchmark runs.
+- `183` fully offline automated Python tests pass.
+- The manually judged SEC retrieval benchmark has 30 cases; Dense Recall@10 was `.519` and Hybrid + reranker Recall@10 was `.685` on the fixed benchmark.
+- `hybrid` is the default application configuration for the measured latency/coverage trade-off; `hybrid_reranked` is an optional higher-ranking-quality path with additional CPU cost.
+- The fixed `financial-agent-e2e-v1` benchmark has 20 deterministic cases covering routing, evidence families, provenance, capability boundaries, and structured limitations.
+- Controlled live provider subsets diagnose real routing and retrieval behavior; they are not full live 20-case benchmark runs.
 
-These deterministic measurements assess retrieval placement and evidence handling, not the factual correctness of every generated sentence.
+These deterministic measurements assess retrieval placement and evidence handling. They do not prove financial profitability or the factual correctness of every generated sentence.
 
-## Example Research Workflows
+## Public Showcase and Example Research Workflows
 
-The following are representative prompts, not fabricated example outputs:
+The [Public Showcase](https://Alan0817.github.io/financial-research-agent/) demonstrates reviewed historical agent runs without requiring a backend or provider credentials. Each scenario exposes the answer, structured evidence, provenance, observable tool execution, and limitations without presenting historical snapshots as live information.
 
-- `What is RSI?`
-- `Analyze NVDA from 2026-01-01 to 2026-06-30.`
-- `What supply-chain risks does Apple disclose in its filings?`
-- `What are the latest developments involving NVIDIA?`
-- `Compare recent MSTR Bitcoin developments with risks disclosed in its SEC filings.`
-- `Analyze BTC-USD using quantitative evidence and the BTC-specific LSTM.`
+| Scenario | Evidence path demonstrated |
+| --- | --- |
+| Conceptual RSI | No tool is required for a general financial concept. |
+| NVDA quantitative analysis | Deterministic market, technical, and risk evidence. |
+| MSTR Bitcoin custody | Section-aware SEC filing retrieval with provenance. |
+| NVIDIA current developments | Current-information web evidence with source metadata. |
+| MSTR SEC + web | Mixed filing and current-web evidence, kept distinct. |
+| BTC market analysis | Quantitative evidence plus the bounded `BTC-USD` LSTM capability. |
 
-A mixed question can combine the relevant market, SEC, and web evidence families.
+Representative prompts include `What is RSI?`, `What supply-chain risks does Apple disclose in its filings?`, and `Compare recent MSTR Bitcoin developments with risks disclosed in its SEC filings.` A mixed question can use only the evidence families relevant to the request.
 
-## SEC Filing RAG Pipeline
+## SEC Filing Retrieval
 
 The current controlled evaluation corpus contains the latest configured `10-K` and `10-Q` filings for `NVDA`, `AAPL`, and `MSTR`. CIK is the stable SEC identity; ticker metadata is retained for filtering and citations. This is a small evaluation corpus, not a production-scale SEC archive.
 
-```text
-Official SEC EDGAR filing
-        |
-        v
-HTML cleanup and section normalization
-        |
-        v
-Section-aware chunking with filing metadata
-        |
-        v
-Dense embeddings and BM25 lexical index
-        |
-        v
-Metadata filtering and hybrid RRF
-        |
-        v
-Optional cross-encoder reranking
-        |
-        v
-search_financial_documents
+```mermaid
+flowchart TD
+    F[Official SEC EDGAR filing] --> C[HTML cleanup and section normalization]
+    C --> K[Section-aware chunking with filing metadata]
+    K --> D[Dense embeddings and BM25 lexical index]
+    D --> H[Metadata filtering and hybrid RRF]
+    H --> R[Optional cross-encoder reranking]
+    R --> T[search_financial_documents]
 ```
 
 The pipeline preserves official SEC provenance plus ticker, form, filing-date, reporting-period, and section metadata. Section detection is deterministic and best-effort: unclassified content remains `UNKNOWN`, and tables are retained as text rather than given advanced financial-table interpretation.
 
 `search_financial_documents` returns compact chunk-level evidence with SEC provenance. It supports ticker, document type, section, and filing-date filters. Section filtering uses normalized, case-insensitive exact matching against either the canonical identifier (for example, `PART I ITEM 1A`) or the title (for example, `Risk Factors`).
+
+### Retrieval Benchmark
+
+Phase 3.3 introduced a separate manually judged retrieval benchmark (`phase-3.3-manual-v1`) with positive and negative cases. It records relevance labels at the chunk level, diagnostic ranks, category breakdowns, and failure annotations without an LLM judge. Phase 3.4 then evaluated four retrieval variants on exactly that benchmark.
+
+| Retriever | Hit@5 | Hit@10 | Recall@10 | nDCG@10 | MRR |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Dense | .444 | .556 | .519 | .309 | .247 |
+| BM25 | .407 | .593 | .593 | .320 | .235 |
+| Hybrid | .444 | .667 | .630 | .354 | .277 |
+| Hybrid + reranker | .593 | .704 | .685 | .405 | .315 |
+
+These numbers are benchmark-specific and are not claims of statistical significance or universal retrieval quality. Hybrid improved candidate coverage over dense retrieval in this corpus and is the default application configuration because it offers a practical latency/coverage trade-off. `hybrid_reranked` achieved the strongest fixed-benchmark ranking metrics, but the local cross-encoder adds substantial CPU latency and remains an optional quality mode.
+
+The retrieval stack is local and provider-neutral. It uses exact normalized cosine similarity for dense candidates, a deterministic lowercase word tokenizer for BM25, Reciprocal Rank Fusion rather than raw-score averaging, and optional reranking only over a bounded candidate set.
 
 ## Quantitative Analysis and the BTC LSTM
 
@@ -134,22 +123,7 @@ The BTC LSTM is a legacy experimental ML component retained as a bounded example
 
 Raw signal is not a long/short exposure. The historical backtest deliberately preserves its contrarian convention: exposure is the negated raw signal, and strategy returns use that exposure times the next-day market return. The model and backtest are experimental research artifacts, not deployable trading performance.
 
-## Retrieval Evaluation
-
-Phase 3.3 introduced a separate manually judged retrieval benchmark (`phase-3.3-manual-v1`) with positive and negative cases. It records relevance labels at the chunk level, diagnostic ranks, category breakdowns, and failure annotations without an LLM judge. Phase 3.4 then evaluated four retrieval variants on exactly that benchmark.
-
-| Retriever | Hit@5 | Hit@10 | Recall@10 | nDCG@10 | MRR |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| Dense | .444 | .556 | .519 | .309 | .247 |
-| BM25 | .407 | .593 | .593 | .320 | .235 |
-| Hybrid | .444 | .667 | .630 | .354 | .277 |
-| Hybrid + reranker | .593 | .704 | .685 | .405 | .315 |
-
-These numbers are benchmark-specific and are not claims of statistical significance or universal retrieval quality. Hybrid improved candidate coverage over dense retrieval in this corpus and is the default production composition because it offers a practical latency/coverage trade-off. `hybrid_reranked` achieved the strongest fixed-benchmark ranking metrics, but the local cross-encoder adds substantial CPU latency and remains an optional quality mode.
-
-The retrieval stack is local and provider-neutral. It uses exact normalized cosine similarity for dense candidates, a deterministic lowercase word tokenizer for BM25, Reciprocal Rank Fusion rather than raw-score averaging, and optional reranking only over a bounded candidate set.
-
-## Agent and End-to-End Evaluation
+## End-to-End Evaluation
 
 The project keeps several evaluation layers separate:
 
@@ -182,9 +156,11 @@ A controlled OpenAI five-case live subset covered conceptual, quantitative, SEC,
 - Returned SEC chunks retained real filing provenance.
 - The web-search regression run stayed within the intended two-search planning budget.
 
-The live evaluation also exposed a useful generic correction: an agent may request a human-readable section title such as `Risk Factors`, while corpus chunks use a canonical identifier such as `PART I ITEM 1A`. The retrieval contract now matches normalized exact values against either field. Regression tests and a subsequent live run confirmed that `section="Risk Factors"` can retrieve MSTR 10-K chunks labeled `PART I ITEM 1A`.
+### Engineering Case Study: Retrieval Contract Failure
 
-This is not a claim of universal retrieval correctness. In particular, the agent can still infer overly restrictive SEC filing-date filters even when the user did not explicitly request a filing-date constraint. Because filtering occurs before ranking, that can yield a truthful `no_results` response while relevant evidence exists elsewhere in the configured corpus.
+A live MSTR custody query initially returned `no_results` because a human-readable section filter such as `Risk Factors` did not match canonical chunk metadata such as `PART I ITEM 1A`. Trace inspection showed that the failure occurred in metadata filtering before ranking, rather than proving that evidence was absent or that embeddings were weak. The retrieval contract was corrected generically to match normalized exact values against either the canonical section identifier or section title, then validated with regression tests and a subsequent live run.
+
+Filing-date planning remains a known limitation: the agent can still infer an overly restrictive SEC filing-date filter even when a user did not explicitly request one. That can truthfully return `no_results` before ranking despite relevant evidence elsewhere in the configured corpus.
 
 ## Known Limitations
 
@@ -378,18 +354,7 @@ The base path is configurable; use `VITE_BASE_PATH=/` for root-hosted local
 preview. Static builds fail clearly if validated showcase assets have not been
 exported.
 
-The repository includes a GitHub Pages workflow for the reviewed static
-showcase. It runs on pushes to `main` or manual dispatch, exports showcase
-assets through the validated Python catalog, and publishes only `frontend/dist`.
-The expected project-site pattern is
-`https://<owner>.github.io/financial-research-agent/`; no public URL is claimed
-until GitHub Pages is enabled and the workflow completes. The public site does
-not deploy FastAPI or expose Live Research. Live Research remains a local or
-private, server-owned capability.
-
-Before the first deployment, enable **GitHub Actions** as the Pages source in
-the repository's Pages settings, review and commit the workflow, then push to
-`main` or run it manually from the Actions tab.
+The reviewed static showcase is deployed through [GitHub Pages](https://Alan0817.github.io/financial-research-agent/). The deployment workflow exports assets through the validated Python catalog and publishes only `frontend/dist` on pushes to `main` or manual dispatch. The public site does not deploy FastAPI or expose Live Research; Live Research remains a local or private, server-owned capability.
 
 Run the showcase API with an explicit local frontend origin:
 
