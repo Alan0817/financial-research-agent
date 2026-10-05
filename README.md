@@ -4,9 +4,13 @@
 
 This repository is an evidence-oriented financial research project, not a generic chatbot, automated trading system, or autonomous financial advisor. A provider-neutral LLM layer plans tool use, gathers evidence, and synthesizes a research response. Market calculations, technical indicators, risk metrics, SEC retrieval, BTC-specific LSTM inference, and evidence validation remain application-owned systems with structured results, provenance, traces, and limitations.
 
-**Explore the portfolio:** [Public Showcase](https://Alan0817.github.io/financial-research-agent/) · [Source Code](https://github.com/Alan0817/financial-research-agent)
+**Explore:** [Public Showcase](https://Alan0817.github.io/financial-research-agent/) · [Source Code](https://github.com/Alan0817/financial-research-agent)
 
 The public showcase contains reviewed historical snapshots from real agent runs. It is static by design: examples are not live market or web results, and public Live Research is intentionally not exposed. The full React + FastAPI Live Research application remains available locally or privately.
+
+**Local Live Research example** — *NVDA analysis using deterministic quantitative tools, with structured evidence and an explicit BTC-only model boundary.*
+
+![Local Live Research example](assets/readme/live_research_readme_ready.png)
 
 ## What This Project Demonstrates
 
