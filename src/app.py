@@ -1,11 +1,27 @@
 """Small composition helper for the configured financial-analysis application."""
+from pathlib import Path
+
 from agent.financial_agent import FinancialAnalysisAgent
+from documents.storage import CorpusStorage
 from llm.client import LLMClient
 from retrieval.factory import build_document_retriever
 from tools.registry import ToolRegistry
 
 
-def build_financial_analysis_agent(provider=None, retrieval_backend=None, web_search_provider=None):
-    retriever = build_document_retriever(retrieval_backend)
+def build_financial_analysis_agent(
+    provider=None,
+    retrieval_backend=None,
+    web_search_provider=None,
+    corpus_dir=None,
+):
+    if corpus_dir is None:
+        retriever = build_document_retriever(retrieval_backend)
+    else:
+        corpus_path = Path(corpus_dir)
+        retriever = build_document_retriever(
+            retrieval_backend,
+            chunks=CorpusStorage(corpus_path).load_chunks(),
+            index_dir=corpus_path / "semantic_index",
+        )
     registry = ToolRegistry(document_retriever=retriever, web_search_provider=web_search_provider)
     return FinancialAnalysisAgent(LLMClient(provider=provider), registry)

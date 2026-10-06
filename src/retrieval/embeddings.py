@@ -1,10 +1,14 @@
 """Provider-neutral local embedding adapters."""
 
 from abc import ABC, abstractmethod
+import logging
 import os
 from typing import Sequence
 
 import numpy as np
+
+
+LOGGER = logging.getLogger(__name__)
 
 
 class EmbeddingModel(ABC):
@@ -46,6 +50,7 @@ class SentenceTransformerEmbeddingModel(EmbeddingModel):
                     "sentence-transformers is required for local SEC retrieval. "
                     "Install project dependencies before creating the embedding model."
                 ) from error
+            LOGGER.info("Loading SEC embedding model %s.", self._model_name)
             self._model = SentenceTransformer(self._model_name)
         return self._model
 

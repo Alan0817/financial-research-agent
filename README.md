@@ -362,7 +362,7 @@ The reviewed static showcase is deployed through [GitHub Pages](https://Alan0817
 
 ### Backend Container and SEC Retrieval Artifacts
 
-The FastAPI backend can run in a Docker container without provider credentials, a SEC corpus/index, or BTC model weights when `DEMO_LIVE_ENABLED=false`. The base image intentionally excludes private/local retrieval artifacts. Live SEC retrieval will later receive a selected, versioned artifact bundle; GCS download and Cloud Run deployment are not part of this phase.
+The FastAPI backend can run in a Docker container without provider credentials, a SEC corpus/index, or BTC model weights when `DEMO_LIVE_ENABLED=false`. The base image intentionally excludes private/local retrieval artifacts. When private Cloud Run Live Research is configured, the first live request downloads one explicitly selected, validated SEC artifact bundle into instance-local ephemeral storage; showcase routes and `/healthz` remain lightweight.
 
 `requirements-runtime.txt` contains only backend serving dependencies and pins
 CPU-only PyTorch for the Docker image. `requirements-dev.txt` adds ingestion,
@@ -451,18 +451,135 @@ PYTHONPATH=src python -m deployment.download_sec_artifact \
 ```
 
 `SEC_ARTIFACT_BUCKET`, `SEC_ARTIFACT_PREFIX` (default `sec-artifacts`), and
-`SEC_ARTIFACT_VERSION` are optional deployment-tooling environment variables;
-they do not affect local application startup. Publisher identities should have
-only `storage.objects.get` and `storage.objects.create` access to this bucket,
-while a future Cloud Run runtime service account should have read-only object
-access. Explicit overwrite requires separately granted update/delete access and
-is not part of normal publishing. Bucket object versioning is optional because
-explicit paths such as `sec-v1` and `sec-v2` are the project-facing release
-mechanism. Retain releases conservatively rather than automatically deleting
-active versions.
+`SEC_ARTIFACT_VERSION` are optional. They leave normal local composition
+unchanged unless both the bucket and version are supplied. In private Cloud Run
+artifact mode, the service downloads that explicit version, verifies the GCS
+checksum and both manifests, validates the corpus/index contract, and passes
+only the extracted corpus directory to the existing retriever composition.
+`SEC_ARTIFACT_LOCAL_DIR` optionally changes the instance-local extraction root;
+its default is `/tmp/financial-research-agent/sec-artifacts`.
 
-Future Phase 6.5 behavior, not implemented here, will select an explicit
-`SEC_ARTIFACT_VERSION`, download it, verify it, and load it for Cloud Run.
+Publisher identities should have only `storage.objects.get` and
+`storage.objects.create` access to this bucket, while the Cloud Run runtime
+service account should have read-only `roles/storage.objectViewer` access
+scoped to the bucket. Explicit overwrite requires separately granted
+update/delete access and is not part of normal publishing. Bucket object
+versioning is optional because explicit paths such as `sec-v1` and `sec-v2`
+are the project-facing release mechanism. Retain releases conservatively
+rather than automatically deleting active versions.
+
+#### Private Cloud Run Live Research
+
+The public [GitHub Pages showcase](https://Alan0817.github.io/financial-research-agent/)
+remains static and reviewed. A separate Cloud Run service can host Live Research
+for authenticated callers only; do not use `--allow-unauthenticated`. Cloud Run
+IAM, rather than CORS, is the access boundary. The service account uses
+Application Default Credentials for the private GCS artifact bucket and reads
+only the provider secrets required by the selected configuration.
+
+The intended private deployment flow is:
+
+```text
+Docker image -> Artifact Registry -> private Cloud Run revision
+SEC artifact sec-vN -> private GCS bucket -> validated instance-local extraction
+Provider secret -> Secret Manager -> Cloud Run environment
+```
+
+The following runbook uses placeholders and intentionally does not include
+credential values:
+
+```bash
+gcloud auth login
+gcloud config set project <project-id>
+gcloud services enable run.googleapis.com artifactregistry.googleapis.com \
+  secretmanager.googleapis.com storage.googleapis.com
+
+REGION=<region>
+PROJECT_ID=<project-id>
+REPOSITORY=<artifact-registry-repository>
+IMAGE=financial-research-agent-api
+TAG=<image-tag>
+BUCKET=<private-sec-artifact-bucket>
+SERVICE_ACCOUNT=financial-research-agent-runtime@${PROJECT_ID}.iam.gserviceaccount.com
+
+gcloud artifacts repositories create "${REPOSITORY}" \
+  --repository-format=docker \
+  --location="${REGION}"
+gcloud storage buckets create "gs://${BUCKET}" \
+  --location="${REGION}" \
+  --uniform-bucket-level-access
+gcloud iam service-accounts create financial-research-agent-runtime
+gcloud storage buckets add-iam-policy-binding "gs://${BUCKET}" \
+  --member="serviceAccount:${SERVICE_ACCOUNT}" \
+  --role="roles/storage.objectViewer"
+
+# Create only the secrets required by the selected provider and capabilities.
+gcloud secrets create OPENAI_API_KEY --replication-policy=automatic
+# Use a protected file or CI secret input; never place a secret literal in shell history.
+gcloud secrets versions add OPENAI_API_KEY --data-file=<secure-secret-file>
+gcloud secrets add-iam-policy-binding OPENAI_API_KEY \
+  --member="serviceAccount:${SERVICE_ACCOUNT}" \
+  --role="roles/secretmanager.secretAccessor"
+
+gcloud auth configure-docker "${REGION}-docker.pkg.dev"
+docker build -t "${IMAGE}:${TAG}" .
+docker tag "${IMAGE}:${TAG}" \
+  "${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPOSITORY}/${IMAGE}:${TAG}"
+docker push "${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPOSITORY}/${IMAGE}:${TAG}"
+```
+
+Publish `sec-vN` first with the artifact upload command above, then deploy the
+private service. Supply provider secret versions through Cloud Run rather than
+shell values or repository files:
+
+```bash
+gcloud run deploy financial-research-agent-api \
+  --image="${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPOSITORY}/${IMAGE}:${TAG}" \
+  --region="${REGION}" \
+  --service-account="${SERVICE_ACCOUNT}" \
+  --no-allow-unauthenticated \
+  --set-env-vars="DEMO_LIVE_ENABLED=true,SEC_ARTIFACT_BUCKET=${BUCKET},SEC_ARTIFACT_PREFIX=sec-artifacts,SEC_ARTIFACT_VERSION=sec-v1,RETRIEVAL_BACKEND=hybrid,LLM_PROVIDER=openai" \
+  --set-secrets="OPENAI_API_KEY=OPENAI_API_KEY:latest" \
+  --memory=4Gi \
+  --cpu=2 \
+  --concurrency=1 \
+  --timeout=300 \
+  --min-instances=0
+```
+
+`4Gi`, two CPUs, concurrency one, a 300-second timeout, and zero minimum
+instances are conservative starting values for measurement, not validated
+capacity claims. Torch, local retrieval models, artifact download, and the
+first dense retrieval can increase cold-start or first-request latency. The
+SentenceTransformer may download its model on first dense retrieval, and the
+optional cross-encoder remains lazy for `hybrid_reranked`; model-cache
+distribution is intentionally deferred.
+
+With Cloud Run IAM access, invoke and inspect the private service without
+making it public. `/healthz` is process liveness only. `/readyz` reports safe
+lazy state (live mode, agent initialization, and artifact initialization) but
+does not make provider or GCS calls:
+
+```bash
+SERVICE_URL=$(gcloud run services describe financial-research-agent-api \
+  --region="${REGION}" \
+  --format='value(status.url)')
+curl -H "Authorization: Bearer $(gcloud auth print-identity-token)" \
+  "${SERVICE_URL}/healthz"
+curl -H "Authorization: Bearer $(gcloud auth print-identity-token)" \
+  "${SERVICE_URL}/readyz"
+gcloud run services logs read financial-research-agent-api \
+  --region="${REGION}" \
+  --limit=50
+gcloud run services update-traffic financial-research-agent-api \
+  --region="${REGION}" \
+  --to-revisions=<previous-revision>=100
+```
+
+Do not place secret values in shell history, Docker build arguments, source
+files, workflow YAML, or the browser. Cloud Run logs record artifact download,
+validation, live-agent initialization, and lazy retrieval-model loading without
+logging prompts, credentials, artifact contents, or local paths.
 
 
 Run the showcase API with an explicit local frontend origin:

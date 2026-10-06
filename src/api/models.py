@@ -9,6 +9,16 @@ class HealthResponse(BaseModel):
     status: str
 
 
+class ReadinessResponse(BaseModel):
+    """Non-sensitive lazy-initialization state for private service operators."""
+
+    live_mode_enabled: bool
+    live_service_initialized: bool
+    artifact_mode_enabled: bool
+    artifact_initialized: bool
+    artifact_version: str | None
+
+
 class CapabilitiesResponse(BaseModel):
     """Public capability summary for a portfolio client."""
 

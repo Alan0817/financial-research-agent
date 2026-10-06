@@ -1,8 +1,12 @@
 """Lazy local cross-encoder adapter."""
 
+import logging
 import os
 
 import numpy as np
+
+
+LOGGER = logging.getLogger(__name__)
 
 
 class Reranker:
@@ -22,6 +26,7 @@ class CrossEncoderReranker(Reranker):
         if self._model is None:
             from sentence_transformers import CrossEncoder
 
+            LOGGER.info("Loading SEC reranker model %s.", self.model_name)
             self._model = CrossEncoder(self.model_name, device=self.device)
         return self._model
 

@@ -7,6 +7,8 @@ from httpx import ASGITransport, AsyncClient
 from api.app import create_app
 from api.config import DemoAPIConfig
 from demo.showcase import ShowcaseScenarioCatalog
+from deployment.runtime_sec_artifacts import RuntimeSecArtifactConfig
+from deployment.runtime_sec_artifacts import RuntimeSecArtifactLoader
 
 
 class FakePresentationService:
@@ -63,6 +65,38 @@ def test_capabilities_report_only_public_demo_state():
         "evidence_families": ["quantitative", "document", "web"],
         "showcase_scenario_count": 6,
     }
+
+
+def test_readyz_reports_lazy_live_and_artifact_state_without_initialization():
+    calls = []
+
+    def downloader(**kwargs):
+        calls.append(kwargs)
+        raise AssertionError("Readiness must not download SEC artifacts.")
+
+    loader = RuntimeSecArtifactLoader(
+        config=RuntimeSecArtifactConfig(
+            bucket="private-artifact-bucket",
+            version="sec-v1",
+        ),
+        downloader=downloader,
+    )
+    app = client_for(
+        DemoAPIConfig(live_enabled=True),
+        sec_artifact_loader=loader,
+    )
+
+    response = request(app, "GET", "/readyz")
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "live_mode_enabled": True,
+        "live_service_initialized": False,
+        "artifact_mode_enabled": True,
+        "artifact_initialized": False,
+        "artifact_version": "sec-v1",
+    }
+    assert calls == []
 
 
 def test_showcase_listing_and_fixture_result_use_catalog_data():
@@ -137,6 +171,31 @@ def test_live_initialization_failure_is_sanitized():
     assert response.status_code == 503
     assert response.json()["detail"]["code"] == "live_service_unavailable"
     assert "secret" not in encoded
+    assert "/private" not in encoded
+
+
+def test_configured_artifact_failure_is_sanitized_before_agent_initialization():
+    def downloader(**kwargs):
+        raise RuntimeError("bucket path /private/artifacts")
+
+    loader = RuntimeSecArtifactLoader(
+        config=RuntimeSecArtifactConfig(
+            bucket="private-artifact-bucket",
+            version="sec-v1",
+        ),
+        downloader=downloader,
+    )
+    app = client_for(
+        DemoAPIConfig(live_enabled=True),
+        sec_artifact_loader=loader,
+    )
+
+    response = request(app, "POST", "/v1/research", json={"prompt": "What is RSI?"})
+    encoded = json.dumps(response.json())
+
+    assert response.status_code == 503
+    assert response.json()["detail"]["code"] == "live_service_unavailable"
+    assert "private-artifact-bucket" not in encoded
     assert "/private" not in encoded
 
 

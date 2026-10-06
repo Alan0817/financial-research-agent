@@ -239,7 +239,7 @@ def _create_storage_client():
     except ImportError as error:
         raise RuntimeError(
             "google-cloud-storage is required for SEC artifact upload/download tooling. "
-            "Install requirements-deployment.txt."
+            "Install requirements-runtime.txt or requirements-deployment.txt."
         ) from error
     return storage.Client()
 
