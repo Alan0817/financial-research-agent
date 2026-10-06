@@ -369,6 +369,11 @@ CPU-only PyTorch for the Docker image. `requirements-dev.txt` adds ingestion,
 historical plotting, and test dependencies. `requirements.txt` remains the
 backward-compatible full local development install through `requirements-dev.txt`.
 
+Pull requests and pushes to `main` run offline Python tests, static frontend
+type-check/build validation, a Docker build, showcase-only container smoke tests,
+and CPU-only PyTorch checks. This CI workflow does not deploy cloud resources or
+enable Live Research.
+
 Build and run the showcase-only backend locally:
 
 ```bash
