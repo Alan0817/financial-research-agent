@@ -1,0 +1,6 @@
+# Deployment artifact distribution tooling. This is intentionally separate
+# from the showcase-only serving image and full local development install.
+-r requirements-runtime.txt
+
+beautifulsoup4
+google-cloud-storage

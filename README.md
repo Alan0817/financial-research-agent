@@ -400,6 +400,70 @@ PYTHONPATH=src python -m deployment.validate_sec_artifacts \
   --artifact-dir /tmp/sec-artifact/sec-retrieval-artifact
 ```
 
+#### Versioned GCS SEC Artifact Releases
+
+SEC corpus releases are versioned separately from the Docker image. A private
+GCS bucket is the planned source of truth for published retrieval bundles; an
+application release and a corpus release can therefore move independently.
+Each immutable version uses deterministic object paths:
+
+```text
+gs://<bucket>/sec-artifacts/sec-vN/
+    sec-vN.tar.gz
+    manifest.json
+    sha256.txt
+```
+
+The archive remains authoritative: the external `manifest.json` is uploaded
+from that archive so release metadata can be inspected before download, and
+`sha256.txt` verifies the archive independently of GCS object metadata. Normal
+publishing never overwrites a version; changed corpus data is published as a
+new version such as `sec-v2`.
+
+Install artifact-distribution tooling separately from the serving image:
+
+```bash
+python -m pip install -r requirements-deployment.txt
+```
+
+Create a private bucket with uniform bucket-level access. Select a region that
+generally matches the future Cloud Run region:
+
+```bash
+gcloud storage buckets create gs://<bucket-name> \
+  --location=<region> \
+  --uniform-bucket-level-access
+```
+
+With Application Default Credentials configured outside the repository, upload
+and independently download/validate an explicit release:
+
+```bash
+PYTHONPATH=src python -m deployment.upload_sec_artifact \
+  --archive dist/sec-artifacts/sec-v1.tar.gz \
+  --bucket <bucket-name> \
+  --version sec-v1
+
+PYTHONPATH=src python -m deployment.download_sec_artifact \
+  --bucket <bucket-name> \
+  --version sec-v1 \
+  --output-dir /tmp/sec-v1
+```
+
+`SEC_ARTIFACT_BUCKET`, `SEC_ARTIFACT_PREFIX` (default `sec-artifacts`), and
+`SEC_ARTIFACT_VERSION` are optional deployment-tooling environment variables;
+they do not affect local application startup. Publisher identities should have
+only `storage.objects.get` and `storage.objects.create` access to this bucket,
+while a future Cloud Run runtime service account should have read-only object
+access. Explicit overwrite requires separately granted update/delete access and
+is not part of normal publishing. Bucket object versioning is optional because
+explicit paths such as `sec-v1` and `sec-v2` are the project-facing release
+mechanism. Retain releases conservatively rather than automatically deleting
+active versions.
+
+Future Phase 6.5 behavior, not implemented here, will select an explicit
+`SEC_ARTIFACT_VERSION`, download it, verify it, and load it for Cloud Run.
+
 
 Run the showcase API with an explicit local frontend origin:
 
