@@ -360,6 +360,42 @@ exported.
 
 The reviewed static showcase is deployed through [GitHub Pages](https://Alan0817.github.io/financial-research-agent/). The deployment workflow exports assets through the validated Python catalog and publishes only `frontend/dist` on pushes to `main` or manual dispatch. The public site does not deploy FastAPI or expose Live Research; Live Research remains a local or private, server-owned capability.
 
+### Backend Container and SEC Retrieval Artifacts
+
+The FastAPI backend can run in a Docker container without provider credentials, a SEC corpus/index, or BTC model weights when `DEMO_LIVE_ENABLED=false`. The base image intentionally excludes private/local retrieval artifacts. Live SEC retrieval will later receive a selected, versioned artifact bundle; GCS download and Cloud Run deployment are not part of this phase.
+
+`requirements-runtime.txt` contains only backend serving dependencies and pins
+CPU-only PyTorch for the Docker image. `requirements-dev.txt` adds ingestion,
+historical plotting, and test dependencies. `requirements.txt` remains the
+backward-compatible full local development install through `requirements-dev.txt`.
+
+Build and run the showcase-only backend locally:
+
+```bash
+docker build -t financial-research-agent-api .
+docker run --rm \
+  -p 8000:8080 \
+  -e PORT=8080 \
+  -e DEMO_LIVE_ENABLED=false \
+  financial-research-agent-api
+curl http://localhost:8000/healthz
+```
+
+Package a validated local SEC corpus and semantic index for later artifact storage:
+
+```bash
+PYTHONPATH=src python -m deployment.package_sec_artifacts \
+  --corpus-dir data/financial_documents \
+  --output dist/sec-artifacts/sec-v1.tar.gz \
+  --artifact-version sec-v1
+
+mkdir -p /tmp/sec-artifact
+tar -xzf dist/sec-artifacts/sec-v1.tar.gz -C /tmp/sec-artifact
+PYTHONPATH=src python -m deployment.validate_sec_artifacts \
+  --artifact-dir /tmp/sec-artifact/sec-retrieval-artifact
+```
+
+
 Run the showcase API with an explicit local frontend origin:
 
 ```bash

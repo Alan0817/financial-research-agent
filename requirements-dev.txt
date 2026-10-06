@@ -1,0 +1,7 @@
+# Full local development, testing, ingestion, and historical workflow setup.
+-r requirements-runtime.txt
+
+beautifulsoup4
+matplotlib
+pytest
+httpx

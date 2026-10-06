@@ -1,17 +1,2 @@
-yfinance
-pandas
-ta
-numpy
-scikit-learn
-torch
-matplotlib
-openai
-python-dotenv
-google-genai
-requests
-beautifulsoup4
-sentence-transformers
-pytest
-fastapi
-uvicorn
-httpx
+# Backward-compatible full local development installation.
+-r requirements-dev.txt
